@@ -23,9 +23,11 @@ org.apache.hadoop.security.AccessControlException: Permission denied: user=Admin
 	at javax.security.auth.Subject.doAs(Subject.java:422)
 	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1924)
 	at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2
-������� ��[hadoop@JD hadoop]$ hadoop fs -chmod 777 /
-�޸��ļ�Ȩ��
-2.FileSystem fileSystem = FileSystem.get(new URI(HDFS_PATH), configuration,"hadoop"); �����û�
+解决方案:
+修改下权限
+[hadoop@JD hadoop]$ hadoop fs -chmod 777 /
+修改用户
+2.FileSystem fileSystem = FileSystem.get(new URI(HDFS_PATH), configuration,"hadoop");
 
 
 ----------------------------------------
@@ -108,7 +110,16 @@ org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /data001/access
 	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.locateFollowingBlock(DFSOutputStream.java:1860)
 	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.nextBlockOutputStream(DFSOutputStream.java:1656)
 	at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:790)
-���������
+解决方案:
 configuration.set("dfs.client.use.datanode.hostname","true");
-ͬʱ�ڱ���hosts�ļ����� 
+//配置host
 114.67.xxx.xxx hadoop001
+
+-----------------------
+19/08/28 11:22:05 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+//报错缘由:缺失hadoop.dll hadoop.dll防止报nativeio异常
+---------------------------------------
+java.lang.UnsatisfiedLinkError: org.apache.hadoop.io.nativeio.NativeIO$Windows.createFileWithMode0(Ljava/lang/String;JJJI)Ljava/io/FileDescriptor;
+
+	at org.apache.hadoop.io.nativeio.NativeIO$Windows.createFileWithMode0(Native Method)
+//报错缘由:下载的hadoop.dll版本,不一致
