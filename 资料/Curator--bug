@@ -30,3 +30,7 @@ Caused by: java.lang.ClassNotFoundException: org.apache.curator.connection.Conne
 	at java.lang.ClassLoader.loadClass(ClassLoader.java:424)
 	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:335)
 	at java.lang.ClassLoader.loadClass(ClassLoader.java:357)
+	//原因 :curator与zookeeper版本不兼容导致
+	官方提示:
+	Curator 2.x.x - compatible with both ZooKeeper 3.4.x and ZooKeeper 3.5.x
+    Curator 3.x.x - compatible only with ZooKeeper 3.5.x and includes support for new features such as dynamic reconfiguration, etc.
