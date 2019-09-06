@@ -1,6 +1,7 @@
-package com.xiaolin.mapreduce.TopN;
+package com.xiaolin.mapreduce.YARN;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -10,13 +11,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-
+/*在yarn上运行本地代码*/
 public class WordCount {
 
     public  static class ServerMap extends Mapper<LongWritable, Text, ServerInfo, NullWritable> {
@@ -29,7 +29,7 @@ public class WordCount {
         }
     }
 
-    public static class ServerReduce extends Reducer<ServerInfo,NullWritable,ServerInfo,NullWritable>{
+    public static class ServerReduce extends Reducer<ServerInfo,NullWritable, ServerInfo,NullWritable>{
         //int TOPN=2;
         int TOPN=1;
         Map<String,Integer> map = new HashMap();
@@ -50,13 +50,27 @@ public class WordCount {
         }
     }
 
-    @Test
-    public  void WordCounttest() throws IOException, ClassNotFoundException, InterruptedException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         //获取配置信息
         Configuration configuration = new Configuration();
+        //配置已在资源目录配置好了,以下可以省略
+//        configuration.set("yarn.nodemanager.aux-services","mapreduce_shuffle");
+//        configuration.set("yarn.resourcemanager.hostname", "hadoop001");
+//
+        configuration.set("mapreduce.framework.name", "yarn");//集群的方式运行
+        configuration.set("mapreduce.app-submission.cross-platform", "true"); //跨平台提交
+        configuration.set("dfs.client.use.datanode.hostname","true");
+        //配置系统提交的用户名称
+        System.setProperty("HADOOP_USER_NAME","hadoop");
+        String outpath ="outdata/result02";
+        FileSystem fileSystem = FileSystem.get(configuration);
+        if (fileSystem.exists(new Path(outpath))){
+            fileSystem.delete(new Path(outpath));
+        }
         //获取job实例
         Job job = Job.getInstance(configuration);
         //指定jar所在位置
+        job.setJar("D:\\IDEAspaces\\hdfs\\out\\artifacts\\hdfs_jar\\hdfs.jar");
         job.setJarByClass(WordCount.class);
         //置顶job使用的map/reduce业务类
         job.setMapperClass(ServerMap.class);
@@ -68,8 +82,9 @@ public class WordCount {
         job.setOutputKeyClass(ServerInfo.class);
         job.setOutputValueClass(NullWritable.class);
         //指定job获取数据的路径 以及输出路径
-        FileInputFormat.setInputPaths(job,new Path("data/Topn.txt"));
-        FileOutputFormat.setOutputPath(job,new Path("out/result01.txt"));
+        FileInputFormat.setInputPaths(job,new Path("hdfs://114.67.98.145:9000/data/Topn.txt"));
+
+        FileOutputFormat.setOutputPath(job,new Path(outpath));
 
         System.exit(job.waitForCompletion(true)?0:1);
 

@@ -6,7 +6,11 @@
 
   <groupId>com.xiaolin.mapreduce</groupId>
   <artifactId>hadoop-mapreduce</artifactId>
+  <packaging>pom</packaging>
   <version>1.0</version>
+  <modules>
+    <module>sacal-001</module>
+  </modules>
 
   <name>hadoop-mapreduce</name>
   <!-- FIXME change it to the project's website -->

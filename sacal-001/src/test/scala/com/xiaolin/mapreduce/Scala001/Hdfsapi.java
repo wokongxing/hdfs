@@ -1,4 +1,5 @@
-package com.xiaolin.mapreduce.HDFSAPP;
+package com.xiaolin.mapreduce.Scala001;
+
 
 
 import org.apache.commons.lang.StringUtils;
@@ -6,7 +7,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,0 +1,80 @@
+19/09/04 10:26:36 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+19/09/04 10:26:37 WARN security.UserGroupInformation: PriviledgedActionException as:T460 (auth:SIMPLE) cause:org.apache.hadoop.security.AccessControlException: Permission denied: user=T460, access=WRITE, inode="/tmp/hadoop-yarn":hadoop:supergroup:drwxr-xr-x
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkFsPermission(DefaultAuthorizationProvider.java:279)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.check(DefaultAuthorizationProvider.java:260)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.check(DefaultAuthorizationProvider.java:240)
+	at org.apache.hadoop.hdfs.server.namenode.DefaultAuthorizationProvider.checkPermission(DefaultAuthorizationProvider.java:162)
+	at org.apache.hadoop.hdfs.server.namenode.FSPermissionChecker.checkPermission(FSPermissionChecker.java:152)
+	at org.apache.hadoop.hdfs.server.namenode.FSDirectory.checkPermission(FSDirectory.java:3885)
+	at org.apache.hadoop.hdfs.server.namenode.FSDirectory.checkPermission(FSDirectory.java:3868)
+	at org.apache.hadoop.hdfs.server.namenode.FSDirectory.checkAncestorAccess(FSDirectory.java:3850)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.checkAncestorAccess(FSNamesystem.java:6820)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.mkdirsInternal(FSNamesystem.java:4562)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.mkdirsInt(FSNamesystem.java:4532)
+	at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.mkdirs(FSNamesystem.java:4505)
+	at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.mkdirs(NameNodeRpcServer.java:884)
+	at org.apache.hadoop.hdfs.server.namenode.AuthorizationProviderProxyClientProtocol.mkdirs(AuthorizationProviderProxyClientProtocol.java:328)
+	at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.mkdirs(ClientNamenodeProtocolServerSideTranslatorPB.java:641)
+	at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+	at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:617)
+	at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:1073)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2281)
+	at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2277)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1924)
+	at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2275)
+//用户无权限
+//配置系统提交的用户名称
+System.setProperty("HADOOP_USER_NAME","hadoop");
+
+----------------------------------------------------------------------
+19/09/04 10:54:16 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+19/09/04 10:54:19 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 0 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+19/09/04 10:54:21 INFO ipc.Client: Retrying connect to server: 0.0.0.0/0.0.0.0:8032. Already tried 1 time(s); retry policy is RetryUpToMaximumCountWithFixedSleep(maxRetries=10, sleepTime=1000 MILLISECONDS)
+
+Process finished with exit code -1
+原因:未配置yarn的resourceManager的hostname
+configuration.set("yarn.resourcemanager.hostname", "hadoop001");
+
+
+----------------------------------------------------------------------------------------
+19/09/04 10:56:17 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+19/09/04 10:56:17 WARN mapreduce.JobResourceUploader: No job jar file set.  User classes may not be found. See Job or Job#setJar(String).
+19/09/04 10:56:17 INFO mapreduce.JobSubmitter: Cleaning up the staging area /tmp/hadoop-yarn/staging/hadoop/.staging/job_1567237617041_0002;
+//指定jar所在位置
+        job.setJar("D:\\IDEAspaces\\hdfs\\out\\artifacts\\hdfs_jar\\hdfs.jar");
+
+-----------------------------------------------------------------------------------------------------------------------------
+19/09/04 14:05:50 INFO client.RMProxy: Connecting to ResourceManager at hadoop001/114.67.98.145:8032
+19/09/04 14:05:51 WARN mapreduce.JobResourceUploader: Hadoop command-line option parsing not performed. Implement the Tool interface and execute your application with ToolRunner to remedy this.
+19/09/04 14:06:12 INFO hdfs.DFSClient: Exception in createBlockOutputStream
+java.net.ConnectException: Connection timed out: no further information
+    at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+    at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:717)
+    at org.apache.hadoop.net.SocketIOWithTimeout.connect(SocketIOWithTimeout.java:206)
+    at org.apache.hadoop.net.NetUtils.connect(NetUtils.java:530)
+    at org.apache.hadoop.hdfs.DFSOutputStream.createSocketForPipeline(DFSOutputStream.java:2008)
+    at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.createBlockOutputStream(DFSOutputStream.java:1715)
+    at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.nextBlockOutputStream(DFSOutputStream.java:1668)
+    at org.apache.hadoop.hdfs.DFSOutputStream$DataStreamer.run(DFSOutputStream.java:790)
+19/09/04 14:06:12 WARN hdfs.DFSClient: Abandoning BP-744454093-192.168.0.3-1567066072363:blk_1073741843_1019
+19/09/04 14:06:12 WARN hdfs.DFSClient: Excluding datanode DatanodeInfoWithStorage[192.168.0.3:50010,DS-955a13a0-1285-465b-a7b2-005df4df159b,DISK]
+19/09/04 14:06:12 WARN hdfs.DFSClient: DataStreamer Exception
+org.apache.hadoop.ipc.RemoteException(java.io.IOException): File /tmp/hadoop-yarn/staging/hadoop/.staging/job_1567577007137_0001/job.jar could only be replicated to 0 nodes instead of minReplication (=1).  There are 1 datanode(s) running and 1 node(s) are excluded in this operation.
+    at org.apache.hadoop.hdfs.server.blockmanagement.BlockManager.chooseTarget4NewBlock(BlockManager.java:1719)
+    at org.apache.hadoop.hdfs.server.namenode.FSNamesystem.getAdditionalBlock(FSNamesystem.java:3508)
+    at org.apache.hadoop.hdfs.server.namenode.NameNodeRpcServer.addBlock(NameNodeRpcServer.java:694)
+    at org.apache.hadoop.hdfs.server.namenode.AuthorizationProviderProxyClientProtocol.addBlock(AuthorizationProviderProxyClientProtocol.java:219)
+    at org.apache.hadoop.hdfs.protocolPB.ClientNamenodeProtocolServerSideTranslatorPB.addBlock(ClientNamenodeProtocolServerSideTranslatorPB.java:507)
+    at org.apache.hadoop.hdfs.protocol.proto.ClientNamenodeProtocolProtos$ClientNamenodeProtocol$2.callBlockingMethod(ClientNamenodeProtocolProtos.java)
+    at org.apache.hadoop.ipc.ProtobufRpcEngine$Server$ProtoBufRpcInvoker.call(ProtobufRpcEngine.java:617)
+    at org.apache.hadoop.ipc.RPC$Server.call(RPC.java:1073)
+    at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2281)
+    at org.apache.hadoop.ipc.Server$Handler$1.run(Server.java:2277)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:422)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1924)
+    at org.apache.hadoop.ipc.Server$Handler.run(Server.java:2275)
+    原因:网络不通
+configuration.set("dfs.client.use.datanode.hostname","true");

@@ -1,0 +1,14 @@
+map 与flatMap的区别
+
+mkString的使用
+scala> val array02 = Array("a_b","c_d","e_f")
+array02: Array[String] = Array(a_b, c_d, e_f)
+
+scala> array02.mkString
+res1: String = a_bc_de_f
+
+scala> array02.mkString(",")
+res2: String = a_b,c_d,e_f
+
+scala> array02.mkString("@"," ","*")
+res3: String = @a_b c_d e_f*
