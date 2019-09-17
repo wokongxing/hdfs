@@ -1,5 +1,6 @@
 package com.xiaolin.mapreduce.CreteLog;
 
+import com.xiaolin.mapreduce.utils.IpUtil;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.junit.Test;
 
@@ -12,6 +13,13 @@ import java.util.Date;
 import java.util.Random;
 
 public class CreateLogData {
+
+    @Test
+    public void getip(){
+        String str="1.0.1.0|1.0.3.255|16777472|16778239|亚洲|中国|福建|福州||电信|350100|China|CN|119.306239|26.075302";
+        String[] splits = str.split("\\|");
+        System.out.println(splits[2]);
+    }
 
     @Test
     public void CreateData(){
@@ -45,7 +53,7 @@ public class CreateLogData {
     }
     //写入数据到本地
     public void writeDataToLoacl( ArrayList<String> list) {
-        String dstpath="out/log2.txt";
+        String dstpath="data/access02.log";
         FileOutputStream fileOutputStream=null;
         FileChannel fileChannel=null;
         ByteBuffer buffer =null;
