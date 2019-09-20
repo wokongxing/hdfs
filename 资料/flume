@@ -1,0 +1,40 @@
+定义Agent
+a1.sources = r1
+a1.sinks = k1
+a1.channels = c1
+
+# 定义Source
+a1.sources.r1.type = TAILDIR
+a1.sources.r1.channels = c1
+# 元数据位置
+a1.sources.r1.positionFile = /home/hadoop/data/flume/taildir_position.json
+# 监控的目录
+a1.sources.r1.filegroups = f1
+a1.sources.r1.filegroups.f1=/home/hadoop/data/flume/access.log
+a1.sources.r1.fileHeader = true
+
+# 定义Channel
+a1.channels.c1.type = memory
+
+# 定义Sink
+a1.sinks.k1.type = hdfs
+a1.sinks.k1.channel = c1
+a1.sinks.k1.hdfs.path = hdfs://114.67.98.145:9000/flume/%Y%m%d
+a1.sinks.k1.hdfs.filePrefix = log_%Y%m%d
+a1.sinks.k1.hdfs.codeC=bzip2
+a1.sinks.k1.hdfs.useLocalTimeStamp = true
+a1.sinks.k1.hdfs.rollSize=0
+a1.sinks.k1.hdfs.rollCount=0
+a1.sinks.k1.hdfs.fileType = CompressedStream
+# 定义配置关系
+a1.sinks.k1.channel = c1
+a1.sources.r1.channels = c1
+//脚本
+flume-ng agent \
+--name a1 \
+--conf-file /home/hadoop/script/flume/simple.conf \
+--conf $FLUME_HOME/conf \
+-Dflume.root.logger=INFO,console
+
+//执行
+hadoop jar /home/hadoop/script/hdfs-0.0.1.jar com.xiaolin.mapreduce.flume.flumeEtl /flume/190920 /outdata

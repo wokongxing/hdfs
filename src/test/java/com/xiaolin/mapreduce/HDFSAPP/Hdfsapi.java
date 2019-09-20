@@ -44,7 +44,7 @@ public class Hdfsapi<main> {
     //拷贝 从本地到Hdfs
     @Test
     public void copyFromLocalFile() throws Exception{
-        Path srcpath = new Path("data/Topn.txt");
+        Path srcpath = new Path("data/ip.txt");
         Path dstpath = new Path("/data");
         fileSystem.copyFromLocalFile(srcpath,dstpath);
 

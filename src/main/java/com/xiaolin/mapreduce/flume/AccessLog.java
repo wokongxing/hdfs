@@ -1,164 +1,122 @@
 package com.xiaolin.mapreduce.flume;
 
-/**
- * 讲师：PK哥   交流群：545916944
- */
-    public class AccessLog {
+public class AccessLog {
 
-        private String user;  //用户账号，可能为null
-        private String platform; // 操作系统
-        private String version;  //软件版本号
-        private String ip;  // ==> 经纬度  省份/城市/运营商/构建标签/构建商圈
-        private String traffic;
-        private String time;
-        private String duration;
-        private String appId; // 一家公司可能有多个app
-    private Long sizes; // 真正统计需要的流量字段
+    private String domain;  //用户账号，可能为null
+    private String time; // 操作系统
+    private String flow;  //软件版本号
+    private String ip;  // ip 可以解析出 省份/城市/运营商/构建标签/构建商圈
+    private Long sizes; // 真正的流量
+    private String provice; //省份
+    private String city;//城市
+    private String isp;//运营商
+    private String year;//年份
+    private String month;//月份
+    private String day;//日
 
-    private String provice;
-    private String city;
-    private String isp;
-    private String year;
-    private String month;
-    private String day;
-
-
-    @Override
-    public String toString() {
-        return user + "\t" +
-                platform + "\t" +
-                  version + "\t" +
-                 ip + "\t"+
-                sizes + "\t" +
-                  time + "\t"+
-                  duration + "\t" +
-                  appId + "\t" +
-                provice+ "\t" +
-                city+ "\t" +
-                isp+ "\t" +
-                year+ "\t" +
-                month+ "\t" +
-                day;
-    }
-
-    public String getUser() {
-            return user;
-        }
-
-        public void setUser(String user) {
-            this.user = user;
-        }
-
-        public String getPlatform() {
-            return platform;
-        }
 
     public Long getSizes() {
-        return sizes;
+        return this.sizes;
     }
 
-    public void setSizes(Long sizes) {
+    public void setSizes(final Long sizes) {
         this.sizes = sizes;
     }
 
-    public void setPlatform(String platform) {
-            this.platform = platform;
-        }
-
-    public String getProvice() {
-        return provice;
+    public String getDomain() {
+        return this.domain;
     }
 
-    public void setProvice(String provice) {
+    public void setDomain(final String domain) {
+        this.domain = domain;
+    }
+
+    public String getTime() {
+        return this.time;
+    }
+
+    public void setTime(final String time) {
+        this.time = time;
+    }
+
+    public String getFlow() {
+        return this.flow;
+    }
+
+    public void setFlow(final String flow) {
+        this.flow = flow;
+    }
+
+    public String getIp() {
+        return this.ip;
+    }
+
+    public void setIp(final String ip) {
+        this.ip = ip;
+    }
+
+    public String getProvice() {
+        return this.provice;
+    }
+
+    public void setProvice(final String provice) {
         this.provice = provice;
     }
 
     public String getCity() {
-        return city;
+        return this.city;
     }
 
-    public void setCity(String city) {
+    public void setCity(final String city) {
         this.city = city;
     }
 
     public String getIsp() {
-        return isp;
+        return this.isp;
     }
 
-    public void setIsp(String isp) {
+    public void setIsp(final String isp) {
         this.isp = isp;
     }
 
     public String getYear() {
-        return year;
+        return this.year;
     }
 
-    public void setYear(String year) {
+    public void setYear(final String year) {
         this.year = year;
     }
 
     public String getMonth() {
-        return month;
+        return this.month;
     }
 
-    public void setMonth(String month) {
+    public void setMonth(final String month) {
         this.month = month;
     }
 
     public String getDay() {
-        return day;
+        return this.day;
     }
 
-    public void setDay(String day) {
+    public void setDay(final String day) {
         this.day = day;
     }
 
-    public String getVersion() {
-            return version;
-        }
+    @Override
+public String toString() {
+    return domain + "\t" +
+             ip + "\t"+
+            sizes + "\t" +
+              time + "\t"+
+            provice+ "\t" +
+            city+ "\t" +
+            isp+ "\t" +
+            year+ "\t" +
+            month+ "\t" +
+            day;
+}
 
-        public void setVersion(String version) {
-            this.version = version;
-        }
 
-        public String getIp() {
-            return ip;
-        }
-
-        public void setIp(String ip) {
-            this.ip = ip;
-        }
-
-        public String getTraffic() {
-            return traffic;
-        }
-
-        public void setTraffic(String traffic) {
-            this.traffic = traffic;
-        }
-
-        public String getTime() {
-            return time;
-        }
-
-        public void setTime(String time) {
-            this.time = time;
-        }
-
-        public String getDuration() {
-            return duration;
-        }
-
-        public void setDuration(String duration) {
-            this.duration = duration;
-        }
-
-        public String getAppId() {
-            return appId;
-        }
-
-        public void setAppId(String appId) {
-            this.appId = appId;
-        }
-    }
+}
 

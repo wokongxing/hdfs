@@ -10,6 +10,8 @@ import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.CounterGroup;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -21,10 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class flumeEtl {
     // 面向套路编程
@@ -33,8 +32,8 @@ public class flumeEtl {
         Configuration configuration = new Configuration();
         Job job = Job.getInstance(configuration);
 
-        String input = "data/access02.log";
-        String outpath = "outdata/access-etl.log";
+        String input = args[0];
+        String outpath = args[1];
         FileSystem fileSystem = FileSystem.get(configuration);
         if (fileSystem.exists(new Path(outpath))){
             fileSystem.delete(new Path(outpath));
@@ -45,12 +44,18 @@ public class flumeEtl {
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(NullWritable.class);
         //把ip放入环形缓冲区
-        job.addCacheFile(new URI("data/ip.txt"));
+        job.addCacheFile(new URI("hdfs://114.67.98.145:9000/data/ip.txt"));
 
         FileInputFormat.setInputPaths(job, new Path(input));
         FileOutputFormat.setOutputPath(job, new Path(outpath));
 
         boolean result = job.waitForCompletion(true);
+        CounterGroup etlCounter = job.getCounters().getGroup("flumeEtl");
+        Iterator<Counter> iterator = etlCounter.iterator();
+        while(iterator.hasNext()) {
+            Counter next = iterator.next();
+            System.out.println("~~~~~华丽的分割线~~~~~" + next.getName() + " : " + next.getValue());
+        }
         System.exit(result?0:1);
 
     }
@@ -58,7 +63,7 @@ public class flumeEtl {
     public static class MyMapper
             extends Mapper<LongWritable, Text, Text, NullWritable> {
 
-        private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss Z");
         List<IpInfo> list = new ArrayList<IpInfo>();
 
         @Override
@@ -87,13 +92,13 @@ public class flumeEtl {
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String json = value.toString();
             AccessLog accessLog = JSON.parseObject(json, AccessLog.class);
-
+            //获取数据总数量
+            context.getCounter("flumeEtl","access_totals").increment(1);
             try {
-                Date date = format.parse(accessLog.getTime());
-
+                Date date = format.parse(accessLog.getTime().substring(1,accessLog.getTime().length()-1));
+                //解析日期
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(date);
-
                 int year = calendar.get(Calendar.YEAR);
                 int month = calendar.get(Calendar.MONTH) + 1;
                 int day = calendar.get(Calendar.DATE);
@@ -102,7 +107,7 @@ public class flumeEtl {
                 accessLog.setDay(day<10?"0"+day:day+"");
 
                 // 去除掉不符合要求的流量字段
-                Long sizes = Long.valueOf(accessLog.getTraffic());
+                Long sizes = Long.valueOf(accessLog.getFlow());
                 accessLog.setSizes(sizes);
 
                 //解析ip
@@ -111,7 +116,11 @@ public class flumeEtl {
                 accessLog.setCity(ipInfo.getCity());
                 accessLog.setIsp(ipInfo.getIsp());
 
-                context.write(new Text(accessLog.toString()), NullWritable.get());
+                //获取正确的数据条数
+                context.getCounter("flumeEtl","access_true_counts").increment(1);
+
+                context.write(new Text(json), NullWritable.get());
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

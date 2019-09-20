@@ -1,10 +1,13 @@
 package com.xiaolin.mapreduce.CreteLog;
 
+import com.alibaba.fastjson.JSON;
 import com.xiaolin.mapreduce.utils.IpUtil;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.junit.Test;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
@@ -13,12 +16,15 @@ import java.util.Date;
 import java.util.Random;
 
 public class CreateLogData {
+    //本地测试路径
+    private static String FLUME_LOCAL_URL="http://localhost:8818/flume/createlog";
+    //通过nginx转发
+    private static String FLUME_HADOOP001_URL="http://114.67.98.145:8089/flume/createlog";
 
     @Test
     public void getip(){
-        String str="1.0.1.0|1.0.3.255|16777472|16778239|亚洲|中国|福建|福州||电信|350100|China|CN|119.306239|26.075302";
-        String[] splits = str.split("\\|");
-        System.out.println(splits[2]);
+        String time ="[09/17/2019 17:23:55 +0800]";
+        System.out.println(time.substring(1,time.length()-1));
     }
 
     @Test
@@ -27,28 +33,33 @@ public class CreateLogData {
         int size =10000;
         ArrayList<String> list = new ArrayList<String>(10000);
         //先设置固定的域名
-        //String domianNames[]={"www.baidu.com","www.ruozedata.com","www.alibaba.com"};
+        String domianNames[]={"www.baidu.com","www.ruozedata.com","www.alibaba.com"};
         //错误数据
         String flows[]={"0","1","2","b","3","4","5","6","c","7","8","9","a"};
         StringBuffer stringBuffer;
         Random rdint = new Random();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss Z");
+        AccessLog accessLog = new AccessLog();
         for (int i=0;i<size;i++){
-            stringBuffer =new StringBuffer();
             //获取随机域名
-            //int index = rdint.nextInt(3);
-            stringBuffer.append("ruozedata.com").append("\t");
+            int index = rdint.nextInt(3);
+            accessLog.setDomain(domianNames[index]);
+            //stringBuffer.append("ruozedata.com").append("\t");
             //获取随机时间
-            stringBuffer.append("[").append(sdf.format(new Date())).append("]").append("\t");
+            accessLog.setTime("["+sdf.format(new Date())+"]");
+            //stringBuffer.append("[").append(sdf.format(new Date())).append("]").append("\t");
             //获取随机流量,制造随机错误数据
             int flow=rdint.nextInt(100000)+1000;
-            stringBuffer.append(flow).append(flows[rdint.nextInt(13)]).append("\t");
+            accessLog.setFlow(flow+flows[rdint.nextInt(13)]);
+            //stringBuffer.append(flow).append(flows[rdint.nextInt(13)]).append("\t");
             //获取随机IP
-            stringBuffer.append(getRandomIp()).append("\n");
-            list.add(stringBuffer.toString());
+            accessLog.setIp(getRandomIp());
+            //stringBuffer.append(getRandomIp()).append("\n");
+            //list.add(stringBuffer.toString());
+            sendPost(FLUME_HADOOP001_URL, JSON.toJSONString(accessLog),"UTF-8");
         }
         //写入数据到本地
-        writeDataToLoacl(list);
+        //writeDataToLoacl(list);
 
     }
     //写入数据到本地
@@ -129,5 +140,55 @@ public class CreateLogData {
 
         return x;
     }
-
+    /**
+     * 发送请求获得信息
+     * @param uri
+     * @return
+     */
+    private static String sendPost(String uri, String param, String charset) {
+        String result = null;
+        PrintWriter out = null;
+        InputStream in = null;
+        BufferedReader buffer =null;
+        try {
+            URL url = new URL(uri);
+            HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
+            urlcon.setRequestProperty("Content-type", "application/json");
+            urlcon.setDoInput(true);
+            urlcon.setDoOutput(true);
+            urlcon.setUseCaches(false);
+            urlcon.setRequestMethod("POST");
+            urlcon.connect();// 获取连接
+            out = new PrintWriter(urlcon.getOutputStream());
+            out.print(param);
+            out.flush();
+            in = urlcon.getInputStream();
+            buffer = new BufferedReader(new InputStreamReader(in, charset));
+            StringBuffer bs = new StringBuffer();
+            String line = null;
+            while ((line = buffer.readLine()) != null) {
+                bs.append(line);
+            }
+            result = bs.toString();
+        } catch (Exception e) {
+            System.out.println("[请求异常][地址：" + uri + "][参数：" + param + "][错误信息：" + e.getMessage() + "]");
+        } finally {
+            try {
+                if (null != in)
+                    in.close();
+                if (null != out)
+                    out.close();
+            } catch (Exception e2) {
+                System.out.println("[关闭流异常][错误信息：" + e2.getMessage() + "]");
+            }
+            if (buffer!=null){
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
 }
